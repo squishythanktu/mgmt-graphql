@@ -1,8 +1,5 @@
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
-import Header from "./components/Header/Header";
-import Clients from "./components/Clients/Clients";
-import AddClientModal from "./components/AddClientModal/AddClientModal";
-import Projects from "./components/Projects/Projects";
+import useRouteElements from "./useRouteElements";
 
 const cache = new InMemoryCache({
   typePolicies: {
@@ -29,16 +26,11 @@ const client = new ApolloClient({
 });
 
 function App() {
+  const routeElements = useRouteElements();
+
   return (
     <>
-      <ApolloProvider client={client}>
-        <Header />
-        <div className="container mx-auto mt-10 flex flex-col gap-2">
-          <Projects />
-          <AddClientModal />
-          <Clients />
-        </div>
-      </ApolloProvider>
+      <ApolloProvider client={client}>{routeElements}</ApolloProvider>
     </>
   );
 }
