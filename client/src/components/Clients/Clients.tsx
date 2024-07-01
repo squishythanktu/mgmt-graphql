@@ -2,12 +2,24 @@ import { DeleteOutlined } from "@ant-design/icons";
 import { useMutation, useQuery } from "@apollo/client";
 import { Button, Space, Spin, Table } from "antd";
 import { DELETE_CLIENT, GET_CLIENTS } from "../../apis/clients.api";
+import { Client } from "../../types/client.type";
 
 export default function Clients() {
-  const { loading, error, data, refetch } = useQuery(GET_CLIENTS);
+  const { loading, error, data } = useQuery(GET_CLIENTS);
   const [deleteClient] = useMutation(DELETE_CLIENT, {
-    onCompleted: () => {
-      refetch();
+    update(cache, { data: { deleteClient } }) {
+      const { clients } = cache.readQuery<{ clients: Client[] }>({
+        query: GET_CLIENTS,
+      }) ?? { clients: [] };
+
+      cache.writeQuery({
+        query: GET_CLIENTS,
+        data: {
+          clients: clients.filter(
+            (client: Client) => client.id !== deleteClient.id
+          ),
+        },
+      });
     },
   });
 
@@ -38,7 +50,7 @@ export default function Clients() {
     {
       title: "Action",
       key: "action",
-      render: (_, record) => (
+      render: (__: unknown, record: Client) => (
         <Space size="middle">
           <Button
             type="primary"
